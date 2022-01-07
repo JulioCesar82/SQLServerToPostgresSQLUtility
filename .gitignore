@@ -1,22 +1,9 @@
 *.log
-Backoffice.Publish.xml
 *.bak
 
 **/node_modules/*
 **/wwwroot/lib/*
 **/build/*
-
-/backoffice/Scripts/**/*.js
-/backoffice/Scripts/**/*.js.map
-/backoffice/wwwroot/build/**/*.*
-/backoffice/wwwroot/vendor/
-/backoffice/Properties/PublishProfiles/FolderProfile.pubxml
-/backoffice/Properties/PublishProfiles/FolderProfile.pubxml.user
-/backoffice/Logs/
-/backoffice/global.json
-
-/backoffice/appsettings.Prd.json
-
 
 # Created by https://www.gitignore.io/api/visualstudio
 
@@ -36,16 +23,16 @@ Backoffice.Publish.xml
 *.userprefs
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+**/[Dd]ebug/
+**/[Dd]ebugPublic/
+**/[Rr]elease/
+**/[Rr]eleases/
+**/x64/
+**/x86/
+**/bld/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Ll]og/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -322,7 +309,3 @@ __pycache__/
 # End of https://www.gitignore.io/api/visualstudio
 
 .DS_Store
-!backoffice/Scripts/Form/Log/
-/certs
-
-/backoffice/.vscode/settings.json

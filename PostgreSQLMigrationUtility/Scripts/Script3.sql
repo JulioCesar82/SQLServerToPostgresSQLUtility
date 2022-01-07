@@ -20,18 +20,20 @@ select ROW_NUMBER() over (
 			select ',' + case 
 					when DATA_TYPE = 'datetime'
 						or DATA_TYPE = 'datetime2'
-						then ' Isnull(nullif(convert(nvarchar(28),' + COLUMN_NAME + + ' ,121) ,' + char(39) + char(39) + '), ' + char(39) + 'null' + char(39) + ')'
+						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE CONCAT(char(39), convert(nvarchar(28), ' + COLUMN_NAME + ', 121), char(39)) end'
 					when DATA_TYPE = 'varchar'
-						or DATA_TYPE = 'nvarchar' then @databaseName + '.dbo.GetMigrationString(' + COLUMN_NAME + ')'
-						when  DATA_TYPE = 'xml'
-						then @databaseName + '.dbo.GetMigrationString(' + ' Isnull(nullif(cast(' + COLUMN_NAME + + ' as nvarchar(max)) ,' + char(39) + char(39) + '), ' + char(39) + 'null' + char(39) + ')' + ')'
+						or DATA_TYPE = 'nvarchar' 
+						or DATA_TYPE = 'text' 
+						or DATA_TYPE = 'xml'
+						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE CONCAT(char(39), ' + COLUMN_NAME + ', char(39)) end'
 					when DATA_TYPE = 'binary'
 						or DATA_TYPE = 'varbinary'
 						or DATA_TYPE = 'image'
-						or  DATA_TYPE = 'timestamp'
+						or DATA_TYPE = 'timestamp'
 						or DATA_TYPE = 'hierarchyid'
-						then 'substring(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '), 3, len(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + ')))'
-					else ' Isnull(nullif(cast(' + COLUMN_NAME + + ' as nvarchar(max)) ,' + char(39) + char(39) + '), ' + char(39) + 'null' + char(39) + ')'
+						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE CONCAT(char(39), substring(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '), 3, len(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '))), char(39)) end'
+					else 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE cast(' + COLUMN_NAME + ' as nvarchar(max)) end'
+
 					end
 			from INFORMATION_SCHEMA.COLUMNS
 			where TABLE_NAME = t.name
