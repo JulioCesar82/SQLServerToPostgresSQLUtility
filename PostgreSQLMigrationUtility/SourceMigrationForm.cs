@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
-using System.Data.SqlClient;
-using System.Threading;
-using System.IO;
 
 namespace PostgreSQLMigrationUtility
 {
@@ -28,13 +24,19 @@ namespace PostgreSQLMigrationUtility
             {
                 MessageBox.Show("Configuration is not complete.");
             }
-            else {
+            else
+            {
                 var settings = JsonConvert.DeserializeObject<SettingClass>(settingData);
                 try
                 {
                     using (SqlConnection con = new SqlConnection())
                     {
                         string connectionString = string.Format("Server={0},{4};Database={1};User Id={2};Password={3};", settings.SQLServer, "master", settings.SQLUsername, settings.SQLPassword, settings.SQLPort);
+                        if (string.IsNullOrEmpty(settings.SQLUsername) || string.IsNullOrEmpty(settings.SQLPassword))
+                        {
+                            connectionString = string.Format("Server={0},{2};Database={1};Integrated Security=SSPI;", settings.SQLServer, "master", settings.SQLPort);
+                        }
+
                         con.ConnectionString = connectionString;
                         using (var cmd = new SqlCommand())
                         {
@@ -83,10 +85,15 @@ namespace PostgreSQLMigrationUtility
                     using (SqlConnection con = new SqlConnection())
                     {
                         string connectionString = string.Format("Server={0},{4};Database={1};User Id={2};Password={3};", settings.SQLServer, "master", settings.SQLUsername, settings.SQLPassword, settings.SQLPort);
+                        if (string.IsNullOrEmpty(settings.SQLUsername) || string.IsNullOrEmpty(settings.SQLPassword))
+                        {
+                            connectionString = string.Format("Server={0},{2};Database={1};Integrated Security=SSPI;", settings.SQLServer, "master", settings.SQLPort);
+                        }
+
                         con.ConnectionString = connectionString;
                         using (var cmd = new SqlCommand())
                         {
-                            cmd.CommandText = string.Format( "select QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) as tablename from {0}.INFORMATION_SCHEMA.TABLES order by tablename",cmbDatabases.Text);
+                            cmd.CommandText = string.Format("select QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) as tablename from {0}.INFORMATION_SCHEMA.TABLES order by tablename", cmbDatabases.Text);
                             cmd.Connection = con;
                             DataSet ds = new DataSet();
                             using (var da = new SqlDataAdapter(cmd))
@@ -297,7 +304,7 @@ namespace PostgreSQLMigrationUtility
             {
                 StaticObjects.log.Error(ex);
             }
-           
+
         }
 
         private void ExecutePatch(string script, SettingClass settings)
@@ -307,6 +314,11 @@ namespace PostgreSQLMigrationUtility
             using (var con = new SqlConnection())
             {
                 string connectionString = string.Format("Server={0},{4};Database={1};User Id={2};Password={3};", settings.SQLServer, selectedDatabase, settings.SQLUsername, settings.SQLPassword, settings.SQLPort);
+                if (string.IsNullOrEmpty(settings.SQLUsername) || string.IsNullOrEmpty(settings.SQLPassword))
+                {
+                    connectionString = string.Format("Server={0},{2};Database={1};Integrated Security=SSPI;", settings.SQLServer, selectedDatabase, settings.SQLPort);
+                }
+
                 con.ConnectionString = connectionString;
                 using (var cmd = new SqlCommand())
                 {
@@ -323,6 +335,11 @@ namespace PostgreSQLMigrationUtility
             using (var con = new SqlConnection())
             {
                 string connectionString = string.Format("Server={0},{4};Database={1};User Id={2};Password={3};", settings.SQLServer, selectedDatabase, settings.SQLUsername, settings.SQLPassword, settings.SQLPort);
+                if (string.IsNullOrEmpty(settings.SQLUsername) || string.IsNullOrEmpty(settings.SQLPassword))
+                {
+                    connectionString = string.Format("Server={0},{2};Database={1};Integrated Security=SSPI;", settings.SQLServer, selectedDatabase, settings.SQLPort);
+                }
+
                 con.ConnectionString = connectionString;
                 using (var cmd = new SqlCommand())
                 {
@@ -338,8 +355,13 @@ namespace PostgreSQLMigrationUtility
         {
             DataSet ds = new DataSet();
             using (var con = new SqlConnection())
-            {                
+            {
                 string connectionString = string.Format("Server={0},{4};Database={1};User Id={2};Password={3};", settings.SQLServer, selectedDatabase, settings.SQLUsername, settings.SQLPassword, settings.SQLPort);
+                if (string.IsNullOrEmpty(settings.SQLUsername) || string.IsNullOrEmpty(settings.SQLPassword))
+                {
+                    connectionString = string.Format("Server={0},{2};Database={1};Integrated Security=SSPI;", settings.SQLServer, selectedDatabase, settings.SQLPort);
+                }
+
                 con.ConnectionString = connectionString;
                 using (var cmd = new SqlCommand())
                 {

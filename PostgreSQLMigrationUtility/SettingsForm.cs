@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Newtonsoft.Json;
-using System.Data.SqlClient;
+﻿using Newtonsoft.Json;
 using Npgsql;
+using System;
+using System.Data.SqlClient;
+using System.IO;
+using System.Windows.Forms;
 
 namespace PostgreSQLMigrationUtility
 {
@@ -35,7 +28,7 @@ namespace PostgreSQLMigrationUtility
             File.WriteAllText(Environment.ExpandEnvironmentVariables("%allusersprofile%") + "/PostgreSQLMigrationUtility/Configuration.config", JsonConvert.SerializeObject(Settings));
             this.Close();
         }
-  
+
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             if (File.Exists(Environment.ExpandEnvironmentVariables("%allusersprofile%") + "/PostgreSQLMigrationUtility/Configuration.config"))
@@ -51,7 +44,8 @@ namespace PostgreSQLMigrationUtility
                 txtSQLServer.Text = Settings.SQLServer;
                 txtSQLUsername.Text = Settings.SQLUsername;
             }
-            else {
+            else
+            {
                 Settings = new SettingClass();
             }
         }
@@ -72,7 +66,7 @@ namespace PostgreSQLMigrationUtility
             if (!string.IsNullOrEmpty(folderBrowserDialog1.SelectedPath))
             {
                 txtMigrationLocation.Text = folderBrowserDialog1.SelectedPath;
-         
+
             }
         }
 
@@ -82,7 +76,12 @@ namespace PostgreSQLMigrationUtility
             {
                 using (SqlConnection con = new SqlConnection())
                 {
-                    string connectionString = string.Format( "Server={0},{4};Database={1};User Id={2};Password={3};", txtSQLServer.Text, "master", txtSQLUsername.Text, txtSQLPassword.Text, txtSQLPort.Text);
+                    string connectionString = string.Format("Server={0},{4};Database={1};User Id={2};Password={3};", txtSQLServer.Text, "master", txtSQLUsername.Text, txtSQLPassword.Text, txtSQLPort.Text);
+                    if (string.IsNullOrEmpty(txtSQLUsername.Text) || string.IsNullOrEmpty(txtSQLPassword.Text))
+                    {
+                        connectionString = string.Format("Server={0},{2};Database={1};Integrated Security=SSPI;", txtSQLServer.Text, "master", txtSQLPort.Text);
+                    }
+
                     con.ConnectionString = connectionString;
                     con.Open();
                     MessageBox.Show("Test connection successful");
@@ -102,6 +101,11 @@ namespace PostgreSQLMigrationUtility
                 using (var con = new NpgsqlConnection())
                 {
                     string connectionString = string.Format("User ID={2};Password={3};Host={0};Port={4};Database={1};", txtPostgresSQL.Text, "postgres", txtPostgreSQLUsername.Text, txtPostgreSQLPassword.Text, txtPostgresPort.Text);
+                    if (string.IsNullOrEmpty(txtSQLUsername.Text) || string.IsNullOrEmpty(txtSQLPassword.Text))
+                    {
+                        connectionString = string.Format("Integrated Security=SSPI;Host={0};Port={2};Database={1};", txtPostgresSQL.Text, "postgres", txtPostgresPort.Text);
+                    }
+
                     con.ConnectionString = connectionString;
                     con.Open();
                     MessageBox.Show("Test connection successful");
