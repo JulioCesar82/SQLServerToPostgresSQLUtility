@@ -20,19 +20,19 @@ select ROW_NUMBER() over (
 			select ',' + case 
 					when DATA_TYPE = 'datetime'
 						or DATA_TYPE = 'datetime2'
-						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE CONCAT(char(39), convert(nvarchar(28), ' + COLUMN_NAME + ', 121), char(39)) end'
+						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ''null'' ELSE convert(nvarchar(28), ' + COLUMN_NAME + ', 121) end'
 					when DATA_TYPE = 'varchar'
 						or DATA_TYPE = 'nvarchar' 
 						or DATA_TYPE = 'text' 
 						or DATA_TYPE = 'xml'
-						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE CONCAT(char(39), ' + COLUMN_NAME + ', char(39)) end'
+						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ''null'' WHEN cast(' + COLUMN_NAME + ' as nvarchar(max)) = '''' THEN '' '' ELSE REPLACE(cast(' + COLUMN_NAME + ' as nvarchar(max)), CHAR(10),'''') end'
 					when DATA_TYPE = 'binary'
 						or DATA_TYPE = 'varbinary'
 						or DATA_TYPE = 'image'
 						or DATA_TYPE = 'timestamp'
 						or DATA_TYPE = 'hierarchyid'
-						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE CONCAT(char(39), substring(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '), 3, len(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '))), char(39)) end'
-					else 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ' + char(39) + 'null' + char(39) + ' ELSE cast(' + COLUMN_NAME + ' as nvarchar(max)) end'
+						then 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ''null'' ELSE substring(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '), 3, len(master.dbo.fn_varbintohexstr(' + COLUMN_NAME + '))) end'
+					else 'CASE WHEN ' + COLUMN_NAME + ' IS NULL THEN ''null'' WHEN cast(' + COLUMN_NAME + ' as nvarchar(max)) = '''' THEN '' '' ELSE REPLACE(cast(' + COLUMN_NAME + ' as nvarchar(max)), CHAR(10),'''') end'
 
 					end
 			from INFORMATION_SCHEMA.COLUMNS
